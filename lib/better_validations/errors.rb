@@ -40,17 +40,7 @@ module BetterValidations::Errors
     end
 
     def split_messages(messages)
-      messages.partition do |field, _|
-        base_field_name = field.to_s.split('.').first.to_sym
-
-        if @base.class.respond_to?(:reflect_on_association)
-          @base.class.reflect_on_association(base_field_name)
-        else
-          @base.class._validators[base_field_name]&.any? do |validator|
-            validator.is_a? BetterValidations::NestedValidator
-          end
-        end
-      end.map(&:to_h)
+      messages.partition { |field, _| field.to_s.include?('.') }.map(&:to_h)
     end
 
     # Converts nested messages to detailed structure with nested objects
