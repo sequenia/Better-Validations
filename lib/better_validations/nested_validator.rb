@@ -20,7 +20,9 @@ class BetterValidations::NestedValidator < ActiveModel::EachValidator
 
   def init_validator(value)
     # A value can be a single object or a list of objects
-    if value.is_a?(Enumerable)
+    if value.is_a?(Hash) || value.is_a?(ActionController::Parameters)
+      validator_class.new(value)
+    elsif value.is_a?(Enumerable)
       value.map { |object| validator_class.new(object) }
     else
       validator_class.new(value)

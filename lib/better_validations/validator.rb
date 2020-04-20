@@ -98,6 +98,8 @@ module BetterValidations::Validator
 
     def convert_active_record_to_attributes(object)
       attribute_names.reduce({}) do |hash, name|
+        next hash unless object.respond_to?(name)
+
         hash.merge(name => object.public_send(name))
       end
     end
