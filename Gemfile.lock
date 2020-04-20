@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    better_validations (0.1.3)
+    better_validations (0.1.4)
       rails (>= 5.0, < 7)
 
 GEM
