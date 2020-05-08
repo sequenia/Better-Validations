@@ -126,9 +126,21 @@ module BetterValidations::Validator
       if value.is_a?(Hash) || value.is_a?(ActionController::Parameters)
         validator_class.new(value)
       elsif value.is_a?(Enumerable)
-        value.map { |object| validator_class.new(object) }
+        init_nested_object_validators_list(value, validator_class)
+      elsif value.is_a?(BetterValidations::Validator)
+        value
       else
         validator_class.new(value)
+      end
+    end
+
+    def init_nested_object_validators_list(list, validator_class)
+      list.map do |object|
+        if object.is_a?(BetterValidations::Validator)
+          object
+        else
+          validator_class.new(object)
+        end
       end
     end
   end
