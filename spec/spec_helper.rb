@@ -52,8 +52,8 @@ RSpec.configure do |config|
   config.include ValidationHelper
 
   # Custom types
-  config.define_derived_metadata(file_path: Regexp.new('/spec/services/')) do |metadata|
-    metadata[:type] = :service
+  config.define_derived_metadata(file_path: Regexp.new('/spec/validators/')) do |metadata|
+    metadata[:type] = :validator
   end
 
 # The settings below are suggested to provide a good initial experience

@@ -1,4 +1,4 @@
-RSpec.describe TestObjectValidator, type: :service do
+RSpec.describe TestObjectValidator, type: :validator do
   it_behaves_like 'a model with validations', TestObjectValidator
   it_behaves_like 'a model with nested validations', TestObjectValidator
   it_behaves_like 'a model with better validations', TestObjectValidator
