@@ -1,5 +1,5 @@
 shared_examples 'a model with better validations' do |validatable_class|
-  context 'with better_validations on attributes' do
+  context 'when validating attributes' do
     it 'should have the same errors with attribute in detailed_messages' do
       object = validatable_class.new(attribute_one: nil).tap(&:valid?)
       expect(object.errors.detailed_messages).to has_same_field_messages(
@@ -15,9 +15,7 @@ shared_examples 'a model with better validations' do |validatable_class|
         object.errors.messages
       )
     end
-  end
 
-  context 'with wrapped attributes in detailed_messages' do
     it 'should return wrapped attributes from detailed_messages for attribute' do
       object = validatable_class.new(attribute_one: nil).tap(&:valid?)
       wrapper = :fields

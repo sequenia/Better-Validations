@@ -1,5 +1,5 @@
 shared_examples 'a model with better nested validations' do |validatable_class|
-  context 'with better_validations on relations attributes' do
+  context 'when validating nested objects' do
     it 'should have nested detailed_messages equals to messages from belongs_to' do
       object = validatable_class.new(belongs_to_object_attributes: {})
                                 .tap(&:valid?)
@@ -23,9 +23,7 @@ shared_examples 'a model with better nested validations' do |validatable_class|
       expect(detailed_messages).to has_same_field_messages(:attribute_five,
                                                            messages)
     end
-  end
 
-  context 'with wrapped attributes in detailed_messages for relations' do
     it 'should return wrapped attributes from detailed_message for belongs_to attribute' do
       object = validatable_class.new(belongs_to_object_attributes: {})
                                 .tap(&:valid?)
@@ -51,9 +49,7 @@ shared_examples 'a model with better nested validations' do |validatable_class|
       expect(detailed_messages).to has_same_field_messages(:attribute_five,
                                                            messages)
     end
-  end
 
-  context 'with client_id passed' do
     it 'should return passed client_id in detailed messages assigned to right object' do
       object = validatable_class.new(
         has_many_objects_attributes: [
