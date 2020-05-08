@@ -7,11 +7,6 @@ module BetterValidations::Validator
     # A system accessors required by BetterValidations::Object
     attr_accessor :id, :client_id
 
-    # A hash with cached instances of nested validators by field.
-    # Filled by instances of a BetterValidations::NestedValidator class
-    # in the process of validation.
-    attr_accessor :nested_object_validators
-
     # A validation object as a possible data source
     attr_reader :validation_object
 
@@ -21,15 +16,24 @@ module BetterValidations::Validator
     # Example of usage in a User model for validating nested PersonalInfo:
     # validate_nested :personal_info, PersonalInfoValidator
     def self.validate_nested(nested_name, validator_class)
-      bind_validator(nested_name, validator_class)
+      bind_validator(nested_name)
+      init_nested_object_setter(nested_name, validator_class)
     end
 
     # Calls a validates_with method to save information about
     # the validating object to the validator and run validations.
-    def self.bind_validator(nested_name, validator_class)
+    def self.bind_validator(nested_name)
       validates_with BetterValidations::NestedValidator,
-                     attributes: [nested_name],
-                     validator_class: validator_class
+                     attributes: [nested_name]
+    end
+
+    # Overriders the setter for nested object in order to create the
+    # instance of validator instead of hash/params/ActiveRecord.
+    def self.init_nested_object_setter(nested_name, validator_class)
+      define_method("#{nested_name}=".to_sym) do |value|
+        validator = init_nested_object_validator(validator_class, value)
+        instance_variable_set("@#{nested_name}".to_sym, validator)
+      end
     end
 
     # Returns a structure of validators such as:
@@ -72,19 +76,6 @@ module BetterValidations::Validator
       BetterValidations::ValidatorsList.new(*([self] + validators))
     end
 
-    # Override to define a start value and getter by name
-    def nested_object_validators(name = nil)
-      return nested_object_validators[name.to_sym] unless name.nil?
-
-      @nested_object_validators ||= {}
-    end
-
-    # The method is overriden for providing a validator object instead of
-    # an active record to collecting error messages.
-    def relation_for_nested_messages(relation)
-      nested_object_validators(relation.to_sym)
-    end
-
     protected
 
     def prepare_attributes(attributes)
@@ -111,6 +102,19 @@ module BetterValidations::Validator
     def set_value(key, value)
       setter = "#{key}=".to_sym
       public_send(setter, value) if respond_to?(setter)
+    end
+
+    def init_nested_object_validator(validator_class, value)
+      return nil if value.nil?
+
+      # A value can be a single object or a list of objects
+      if value.is_a?(Hash) || value.is_a?(ActionController::Parameters)
+        validator_class.new(value)
+      elsif value.is_a?(Enumerable)
+        value.map { |object| validator_class.new(object) }
+      else
+        validator_class.new(value)
+      end
     end
   end
 end

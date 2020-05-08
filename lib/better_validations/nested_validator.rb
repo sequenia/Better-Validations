@@ -1,37 +1,14 @@
 class BetterValidations::NestedValidator < ActiveModel::EachValidator
-  attr_reader :validator_class
-
-  def initialize(options)
-    @validator_class = options.delete(:validator_class)
-    super
-  end
-
   def validate_each(record, attr_name, value)
     return if value.nil?
 
-    validator = init_validator(value)
-    cache_validator(record, attr_name, validator)
+    validator = value
     return if validator_valid?(validator)
 
     record.errors.add(error_key(attr_name), error_text)
   end
 
   protected
-
-  def init_validator(value)
-    # A value can be a single object or a list of objects
-    if value.is_a?(Hash) || value.is_a?(ActionController::Parameters)
-      validator_class.new(value)
-    elsif value.is_a?(Enumerable)
-      value.map { |object| validator_class.new(object) }
-    else
-      validator_class.new(value)
-    end
-  end
-
-  def cache_validator(record, attr_name, validator)
-    record.nested_object_validators[attr_name.to_sym] = validator
-  end
 
   def validator_valid?(validator)
     validators = validator.is_a?(Enumerable) ? validator : [validator]
