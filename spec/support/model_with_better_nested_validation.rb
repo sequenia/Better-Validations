@@ -1,8 +1,8 @@
-shared_examples 'a model with better nested validations' do |validatable_class|
+shared_examples 'a model with better nested validations' do
   context 'when validating nested objects' do
     it 'should have nested detailed_messages equals to messages from belongs_to' do
-      object = validatable_class.new(belongs_to_object_attributes: {})
-                                .tap(&:valid?)
+      object = described_class.new(belongs_to_object_attributes: {})
+                              .tap(&:valid?)
 
       messages = object.belongs_to_object.errors.messages
       detailed_messages = object.errors.detailed_messages[:belongs_to_object]
@@ -12,8 +12,8 @@ shared_examples 'a model with better nested validations' do |validatable_class|
     end
 
     it 'should have nested detailed_messages equals to messages from has_many' do
-      object = validatable_class.new(has_many_objects_attributes: [{}])
-                                .tap(&:valid?)
+      object = described_class.new(has_many_objects_attributes: [{}])
+                              .tap(&:valid?)
 
       messages = object.has_many_objects.first.errors.messages
       detailed_messages = object.errors
@@ -25,8 +25,8 @@ shared_examples 'a model with better nested validations' do |validatable_class|
     end
 
     it 'should return wrapped attributes from detailed_message for belongs_to attribute' do
-      object = validatable_class.new(belongs_to_object_attributes: {})
-                                .tap(&:valid?)
+      object = described_class.new(belongs_to_object_attributes: {})
+                              .tap(&:valid?)
 
       messages = object.belongs_to_object.errors.messages
       detailed_messages = object.errors.detailed_messages(
@@ -38,8 +38,8 @@ shared_examples 'a model with better nested validations' do |validatable_class|
     end
 
     it 'should return wrapped attributes from detailed_message for has_many attribute' do
-      object = validatable_class.new(has_many_objects_attributes: [{}])
-                                .tap(&:valid?)
+      object = described_class.new(has_many_objects_attributes: [{}])
+                              .tap(&:valid?)
 
       messages = object.has_many_objects.first.errors.messages
       detailed_messages = object.errors.detailed_messages(
@@ -51,7 +51,7 @@ shared_examples 'a model with better nested validations' do |validatable_class|
     end
 
     it 'should return passed client_id in detailed messages assigned to right object' do
-      object = validatable_class.new(
+      object = described_class.new(
         has_many_objects_attributes: [
           {
             client_id: 'one',
