@@ -8,8 +8,10 @@ shared_examples 'a model with better nested validations' do
         messages = object.belongs_to_object.errors.messages
         detailed_messages = object.errors.detailed_messages[:belongs_to_object]
 
-        expect(detailed_messages).to has_same_field_messages(:attribute_three,
-                                                            messages)
+        expect(detailed_messages).to has_same_field_messages(
+          :attribute_three,
+          messages
+        )
       end
 
       it 'should have nested detailed_messages equals to messages from has_many' do
@@ -21,8 +23,10 @@ shared_examples 'a model with better nested validations' do
                                   .detailed_messages[:has_many_objects]
                                   .first
 
-        expect(detailed_messages).to has_same_field_messages(:attribute_five,
-                                                            messages)
+        expect(detailed_messages).to has_same_field_messages(
+          :attribute_five,
+          messages
+        )
       end
 
       it 'should return wrapped attributes from detailed_message for belongs_to attribute' do
@@ -34,8 +38,10 @@ shared_examples 'a model with better nested validations' do
           wrap_attributes_to: :fields
         )[:belongs_to_object][:fields]
 
-        expect(detailed_messages).to has_same_field_messages(:attribute_three,
-                                                            messages)
+        expect(detailed_messages).to has_same_field_messages(
+          :attribute_three,
+          messages
+        )
       end
 
       it 'should return wrapped attributes from detailed_message for has_many attribute' do
@@ -47,8 +53,10 @@ shared_examples 'a model with better nested validations' do
           wrap_attributes_to: :fields
         )[:has_many_objects].first[:fields]
 
-        expect(detailed_messages).to has_same_field_messages(:attribute_five,
-                                                            messages)
+        expect(detailed_messages).to has_same_field_messages(
+          :attribute_five,
+          messages
+        )
       end
 
       it 'should return passed client_id in detailed messages assigned to right object' do
