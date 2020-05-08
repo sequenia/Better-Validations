@@ -17,7 +17,8 @@ module BetterValidations::Validator
     # validate_nested :personal_info, PersonalInfoValidator
     def self.validate_nested(nested_name, validator_class)
       bind_validator(nested_name)
-      init_nested_object_setter(nested_name, validator_class)
+      define_nested_object_setter(nested_name, validator_class)
+      define_attributes_setter(nested_name)
     end
 
     # Calls a validates_with method to save information about
@@ -29,11 +30,18 @@ module BetterValidations::Validator
 
     # Overriders the setter for nested object in order to create the
     # instance of validator instead of hash/params/ActiveRecord.
-    def self.init_nested_object_setter(nested_name, validator_class)
+    def self.define_nested_object_setter(nested_name, validator_class)
       define_method("#{nested_name}=".to_sym) do |value|
         validator = init_nested_object_validator(validator_class, value)
         instance_variable_set("@#{nested_name}".to_sym, validator)
       end
+    end
+
+    # Defines an _attributes setter in order to set a value by _attributes key
+    # instead of an original name.
+    def self.define_attributes_setter(nested_name)
+      setter_name = "#{nested_name}_attributes="
+      define_method(setter_name) { |value| set_value(nested_name, value) }
     end
 
     # Returns a structure of validators such as:
@@ -74,6 +82,13 @@ module BetterValidations::Validator
 
     def merge(*validators)
       BetterValidations::ValidatorsList.new(*([self] + validators))
+    end
+
+    def read_attribute_for_validation(attr)
+      # Default implementation is 'send(attr)', but it fails if set
+      # an :blank error as a symbol to the nested object:
+      #   errors.add(:'nested_name.nested_attribute', :blank)
+      try(attr)
     end
 
     protected

@@ -10,5 +10,7 @@ RSpec.describe TestObjectValidator, type: :service do
   end
 
   it_behaves_like 'a default attribute validator', TestObjectValidator
+  it_behaves_like 'a default validator with nested', TestObjectValidator
   it_behaves_like 'a better attribute validator', TestObjectValidator
+  it_behaves_like 'a better validator with nested', TestObjectValidator
 end
