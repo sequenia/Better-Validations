@@ -1,4 +1,4 @@
-shared_examples 'a better attribute validator' do |validatable_class|
+shared_examples 'a model with better validations' do |validatable_class|
   context 'with better_validations on attributes' do
     it 'should have the same errors with attribute in detailed_messages' do
       object = validatable_class.new(attribute_one: nil).tap(&:valid?)

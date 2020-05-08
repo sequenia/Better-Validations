@@ -1,4 +1,4 @@
-shared_examples 'a default attribute validator' do |validatable_class|
+shared_examples 'a model with validations' do |validatable_class|
   context 'attributes errors without better_validations' do
     it 'should have presence validation on attribute' do
       object = validatable_class.new(attribute_one: nil).tap(&:valid?)
