@@ -1,66 +1,73 @@
 shared_examples 'a model with better nested validations' do
   describe '#valid?' do
     context 'when validating nested objects' do
-      it 'should have nested detailed_messages equals to messages from belongs_to' do
-        object = described_class.new(belongs_to_object_attributes: {})
-                                .tap(&:valid?)
+      it 'should have nested detailed messages in belongs_to' do
+        attributes = { belongs_to_object_attributes: {} }
+        object = described_class.new(attributes).tap(&:valid?)
 
-        messages = object.belongs_to_object.errors.messages
-        detailed_messages = object.errors.detailed_messages[:belongs_to_object]
+        belongs_to_messages = object.belongs_to_object.errors.messages
+        belongs_to_detailed_messages =
+          object.errors
+                .detailed_messages[:belongs_to_object]
 
-        expect(detailed_messages).to has_same_field_messages(
+        expect(belongs_to_detailed_messages).to has_same_field_messages(
           :attribute_three,
-          messages
+          belongs_to_messages
         )
       end
 
-      it 'should have nested detailed_messages equals to messages from has_many' do
-        object = described_class.new(has_many_objects_attributes: [{}])
-                                .tap(&:valid?)
+      it 'should have nested detailed messages in has_many' do
+        attributes = { has_many_objects_attributes: [{}] }
+        object = described_class.new(attributes).tap(&:valid?)
 
-        messages = object.has_many_objects.first.errors.messages
-        detailed_messages = object.errors
-                                  .detailed_messages[:has_many_objects]
-                                  .first
+        has_many_messages = object.has_many_objects.first.errors.messages
+        has_many_detailed_messages =
+          object.errors
+                .detailed_messages[:has_many_objects]
+                .first
 
-        expect(detailed_messages).to has_same_field_messages(
+        expect(has_many_detailed_messages).to has_same_field_messages(
           :attribute_five,
-          messages
+          has_many_messages
         )
       end
 
-      it 'should return wrapped attributes from detailed_message for belongs_to attribute' do
-        object = described_class.new(belongs_to_object_attributes: {})
-                                .tap(&:valid?)
+      it 'should wrap attributes in detailed messages for belongs_to' do
+        attributes = { belongs_to_object_attributes: {} }
+        object = described_class.new(attributes).tap(&:valid?)
 
-        messages = object.belongs_to_object.errors.messages
-        detailed_messages = object.errors.detailed_messages(
-          wrap_attributes_to: :fields
-        )[:belongs_to_object][:fields]
+        belongs_to_messages = object.belongs_to_object.errors.messages
+        belongs_to_detailed_messages =
+          object.errors
+                .detailed_messages(wrap_attributes_to: :fields)
+                .public_send(:[], :belongs_to_object)
+                .public_send(:[], :fields)
 
-        expect(detailed_messages).to has_same_field_messages(
+        expect(belongs_to_detailed_messages).to has_same_field_messages(
           :attribute_three,
-          messages
+          belongs_to_messages
         )
       end
 
-      it 'should return wrapped attributes from detailed_message for has_many attribute' do
-        object = described_class.new(has_many_objects_attributes: [{}])
-                                .tap(&:valid?)
+      it 'should wrap attributes in detailed messages for has_many' do
+        attributes = { has_many_objects_attributes: [{}] }
+        object = described_class.new(attributes).tap(&:valid?)
 
-        messages = object.has_many_objects.first.errors.messages
-        detailed_messages = object.errors.detailed_messages(
-          wrap_attributes_to: :fields
-        )[:has_many_objects].first[:fields]
+        has_many_messages = object.has_many_objects.first.errors.messages
+        has_many_detailed_messages =
+          object.errors
+                .detailed_messages(wrap_attributes_to: :fields)
+                .public_send(:[], :has_many_objects)
+                .first[:fields]
 
-        expect(detailed_messages).to has_same_field_messages(
+        expect(has_many_detailed_messages).to has_same_field_messages(
           :attribute_five,
-          messages
+          has_many_messages
         )
       end
 
-      it 'should return passed client_id in detailed messages assigned to right object' do
-        object = described_class.new(
+      it 'should return client_id assigned to the right object' do
+        attributes = {
           has_many_objects_attributes: [
             {
               client_id: 'one',
@@ -73,17 +80,16 @@ shared_examples 'a model with better nested validations' do
               attribute_six: 'filled'
             }
           ]
-        ).tap(&:valid?)
+        }
 
+        object = described_class.new(attributes).tap(&:valid?)
         detailed_messages = object.errors
                                   .detailed_messages[:has_many_objects]
                                   .find { |hash| hash[:client_id] == 'one' }
-
-        messages =
-          object.has_many_objects
-                .find { |has_many_object| has_many_object.client_id == 'one' }
-                .errors
-                .messages
+        messages = object.has_many_objects
+                         .find { |nested| nested.client_id == 'one' }
+                         .errors
+                         .messages
 
         expect(detailed_messages.except(:client_id)).to eq(messages)
       end
