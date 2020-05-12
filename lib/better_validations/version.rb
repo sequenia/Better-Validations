@@ -1,3 +1,3 @@
 module BetterValidations
-  VERSION = '0.1.4'.freeze
+  VERSION = '1.0.0'.freeze
 end
