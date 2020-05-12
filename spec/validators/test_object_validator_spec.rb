@@ -4,36 +4,17 @@ RSpec.describe TestObjectValidator, type: :validator do
   it_behaves_like 'a model with better validations'
   it_behaves_like 'a model with better nested validations'
 
-  let(:string) { 'string' }
-  let(:attributes) { { attribute_one: string } }
-
-  let(:attributes_with_belongs_to) do
-    { belongs_to_object: { attribute_three: string } }
-  end
-
-  let(:nested_attributes_with_belongs_to) do
-    { belongs_to_object_attributes: { attribute_three: string } }
-  end
-
-  let(:attributes_with_has_many) do
-    { has_many_objects: [{ attribute_five: string }] }
-  end
-
-  let(:nested_attributes_with_has_many) do
-    { has_many_objects_attributes: [{ attribute_five: string }] }
-  end
-
   it_behaves_like 'a validator instance', params_class: TestObject
-
   it_behaves_like 'a validator instance',
                   params_class: Hash,
                   instantiator: ->(params) { params }
-
   it_behaves_like 'a validator instance',
                   params_class: ActionController::Parameters,
                   instantiator: ->(params) do
                     ActionController::Parameters.new(params)
                   end
+
+  let(:string) { 'string' }
 
   describe '#new' do
     context 'when filling by accessors' do
@@ -56,6 +37,18 @@ RSpec.describe TestObjectValidator, type: :validator do
         validator = described_class.new
         has_many_objects = [HasManyObjectValidator.new(attribute_five: string)]
         validator.has_many_objects = has_many_objects
+        expect(validator.has_many_objects.first.attribute_five).to eq(string)
+      end
+
+      it 'should accept nested object without _attributes suffix' do
+        attributes = { belongs_to_object: { attribute_three: string } }
+        validator = described_class.new(attributes)
+        expect(validator.belongs_to_object.attribute_three).to eq(string)
+      end
+
+      it 'shoud accept nested list without _attributes prefix' do
+        attributes = { has_many_objects: [{ attribute_five: string }] }
+        validator = described_class.new(attributes)
         expect(validator.has_many_objects.first.attribute_five).to eq(string)
       end
     end

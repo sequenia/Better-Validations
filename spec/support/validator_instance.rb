@@ -1,4 +1,12 @@
 shared_examples 'a validator instance' do |params_class:, instantiator: ->(params) { params }|
+  let(:attributes) { { attribute_one: 'string' } }
+  let(:nested_attributes_with_belongs_to) do
+    { belongs_to_object_attributes: { attribute_three: 'string' } }
+  end
+  let(:nested_attributes_with_has_many) do
+    { has_many_objects_attributes: [{ attribute_five: 'string' }] }
+  end
+
   describe '#new' do
     context "with #{params_class.name}" do
       it 'should fill attributes' do
