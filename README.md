@@ -185,6 +185,23 @@ object = ActionController::Parameters.new(nested_object: { attribute_one: nil })
 validator = SomeModelValidator.new(object)
 ```
 
+Names of nested objects with the `_attributes` suffix is also acceptable:
+
+```ruby
+validator = SomeModelValidator.new(
+  nested_object_attributes: { attribute_one: nil }
+)
+```
+
+You can initialize fields by setters if needs:
+
+```ruby
+validator = SomeModelValidator.new
+validator.attribute_one = 'filled'
+validator.nested_object = { attribute_one: 'filled' }
+validator.valid?
+```
+
 ### Merge error messages from multiple validators
 
 Better Validations provides the ability to merge validators in order to get merged detailed errors.
@@ -210,25 +227,6 @@ end
 
 class SomeModelValidator < ApplicationValidator
 end
-```
-
-This will allow you to easily add common functionality to the validators. For example, add automatic  parsing of keys with `_attributes` suffix to validator properties in order to support format of `accepts_nested_attributes_for` parameters:
-
-```ruby
-class ApplicationValidator
-  include BetterValidations::Validator
-
-  def self.validate_nested(nested_name, validator_class)
-    define_attributes_accessor(nested_name)
-    bind_validator(nested_name, validator_class)
-  end
-
-  def self.define_attributes_accessor(nested_name)
-    setter_name = "#{nested_name}_attributes="
-    define_method(setter_name) { |value| set_value(nested_name, value) }
-  end
-end
-
 ```
 
 ## Development
