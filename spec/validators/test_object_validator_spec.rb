@@ -1,7 +1,8 @@
 RSpec.describe TestObjectValidator, type: :validator do
   it_behaves_like 'a model with validations'
   it_behaves_like 'a model with nested validations'
-  it_behaves_like 'a model with better validations'
+  it_behaves_like 'a model with better validations', attribute: :attribute_one
+  it_behaves_like 'a model with better validations', attribute: :attribute_two
   it_behaves_like 'a model with better nested validations'
 
   it_behaves_like 'a validator instance', params_class: TestObject
