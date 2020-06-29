@@ -229,6 +229,43 @@ class SomeModelValidator < ApplicationValidator
 end
 ```
 
+## Known issues
+
+- Attribute of a validator is not filled by the value from the active record object if it (attribute) does not have a standard validation. Example:
+
+```ruby
+class SomeValidator < ApplicationValidator
+  attr_accessor :attribute_one, :attribute_two
+
+  validates :attribute_one, presence: true # standard validation
+  validate :some_validation_of_attribute_two # custom validation
+
+  def some_validation_of_attribute_two
+    errors.add(:attribute_two, 'error') if some_condition
+  end
+end
+
+object = SomeObject.new(attribute_one: 'value', attribute_two: 'value')
+validator = SomeValidator.new(object)
+validator.attribute_one # equals to 'value'
+validator.attribute_two # is nil
+```
+
+As a workaround you can override the `attribute_names` method and concat the array from super with the validating attribute:
+
+```ruby
+class SomeValidator < ApplicationValidator
+  ##############################
+  # Some previous code here
+  ##############################
+
+  # Fix for attributes without standard validations (known issue)
+  def attribute_names
+    super + [:attribute_two]
+  end
+end
+```
+
 ## Development
 
 1. Clone project.
